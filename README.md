@@ -36,7 +36,9 @@ This solution allows you automating the renewal certificate process using ACME
 ```
 3. Upload the **Alteon_Deploy_Certificate.vm**, **Alteon_Deploy_ACME_Challenge.vm**, and **Alteon_Clean_ACME_Challenge.vm** configuration templates to Cyber Controller vDirect:
 ![image](https://github.com/user-attachments/assets/8164430f-0eb5-45ca-9078-84274b779b8c)
+
 ![image](https://github.com/user-attachments/assets/40fa2d1c-ac24-4d5b-ba40-ff68573a711c)
+
 ![image](https://github.com/user-attachments/assets/16e481df-fbcf-43c2-9eb2-b538517f8682)
 
 Alternatively, you can choose **Create a new template** and paste the configuration files content, make sure provide the exact names.
