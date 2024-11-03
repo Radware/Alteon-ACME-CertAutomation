@@ -1,0 +1,118 @@
+#property('summary', 'Import Alteon SSL private key + certificate + intermidiate CA')
+#device($alteons, 'type=alteon[]')
+
+#param($name,'string','in', 'prompt=name')
+#param($key, 'string', 'in', 'format=pem', 'prompt=Private key in PEM format')
+#param($password, 'string', 'in', 'prompt= Key passphrase', 'required=false', 'defaultValue=', 'format=password')
+#param($srvrcert, 'string', 'in', 'format=pem', 'prompt=Server Certificate in PEM format')
+#param($intermca, 'string', 'in', 'format=pem', 'prompt=Intermediate CA Certificate in PEM format')
+
+#set($expect.timeout = 15)
+#set($expect.failOnTimeout = true)
+#set($expect.failOnEOF = true)
+
+#set($masterAlteons=[])
+
+
+#foreach($alteon in $alteons)
+    #select($alteon)
+    #savereplies(false)
+    
+    	/c/slb/ssl/certs/import key "$name" text
+    
+    	#expectCase()
+    
+    		#case('.*Overwrite\? \(y/n\)')
+    			y
+                #expectContinue()
+    		#end
+    
+    		#case('To abort type "..."\r?\n?>')
+    			## break
+            #end
+        #end
+    
+        #foreach($line in $key.split('\r?\n'))
+            $alteon.sendLine($line)
+            #expectCase()
+            #case('Enter key passphrase:')
+                #if(!$password.isEmpty())
+                    $password
+                #else
+                    $alteon.sendLine('')
+                #end
+            #end
+            
+            #case('>')
+            #end
+            #case('Error:.*')
+                  #error("The key import failed: ${expect[0].string}")
+            #end
+            #case('>>.+# ')
+            #end
+          #end
+        #end
+    
+        #expectCase()
+          #case('Error:.*')
+            #error("The key import failed: ${expect[0].string}")
+          #end
+    
+          #case('>>.+# ')
+          #end
+        #end
+    #end
+    
+    #import_cert("certificate", $name, $srvrcert)
+    #import_cert("intermca", $name, $intermca)
+
+    /c/slb/ssl/certs/cert $name/intermca cert $name
+
+    $alteon.commit()
+    #set($bean = $alteon.readBean('HaSwitchInfo'))
+
+	#if($bean.haSwitchInfoState == "master")
+    	#set($dummy = $masterAlteons.add($alteon))
+	#end    
+#end
+
+## Syncing the configuration from the masters to the backup devices to remove the sync notification
+#foreach($alteon in $masterAlteons)
+    #select($alteon)
+    sync
+#end
+
+
+#macro(import_cert, $type, $certName, $certificate)
+    #savereplies(false)
+
+        /c/slb/ssl/certs/import $type "$certName" text
+
+        #expectCase()
+
+            #case('Overwrite\? \(y/n\)')
+                y
+                #expectContinue()
+            #end
+
+            #case('To abort type "..."\r?\n?>')
+                ##break
+            #end
+        #end
+
+        #foreach($line in $certificate.split('\r?\n'))
+          $alteon.sendLine($line)
+          #expectCase()
+            #case('>')
+            #end
+            #case('Error:.*')
+                  #error("The import failed: ${expect[0].string}")
+            #end
+            #case('>>.+# ')
+            #end
+            #case('intermca added.')
+            #end
+          #end
+        #end
+    #end
+#end

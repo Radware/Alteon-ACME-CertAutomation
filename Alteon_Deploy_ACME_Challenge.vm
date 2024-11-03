@@ -1,0 +1,17 @@
+#property('summary', 'Deploy Lets Encrypt Challenge as entries in dataclass acme_responses')
+#device($alteons, 'type=alteon[]')
+
+#param($TOKEN_FILENAME,'string','in', 'prompt=Challenge token filename')
+#param($TOKEN_VALUE, 'string', 'in', 'prompt=Challenge token value')
+
+#set($expect.timeout = 15)
+#set($expect.failOnTimeout = true)
+#set($expect.failOnEOF = true)
+
+#foreach($alteon in $alteons)
+    #select($alteon)
+    #savereplies(false)
+        /c/slb/dataclss/class acme_responses string/data $TOKEN_FILENAME $TOKEN_VALUE
+        $alteon.commit()
+    #end
+#end
