@@ -19,23 +19,22 @@ This solution allows you automating the renewal certificate process using ACME
 
 ## Pre Requisites ##
 * At least one Cyber Controller server version 10.5 and above, with internet connectivity
-*	The virtual servers should be accessible from the Internet
-*	public DNS record for each virtual server for validation by ACME
+*	The Alteon's virtual servers should be accessible from the Internet
+*	Public DNS record for each virtual server for validation by ACME
 *	Office365 account for sending email notifications
 
 ## How To Use ##
-1. Get the **dehydrated-letsencrypt.tar.gz** file, example how to get that using git command:
+1. Get the files with git or download them manually, example how to get that using git command:
 
 ```
-# git clone https://github.com/Radware/Alteon-ACME-CertAutomation.git
+git clone https://github.com/Radware/Alteon-ACME-CertAutomation.git
 ```
 
-2. Upload the file to the Cyber-Controller
+2. In case of downloading the files manually, upload the files to the Cyber-Controller Linux
 
 ```
-# mkdir /etc/dehydrated
-# tar xvf dehydrated-letsencrypt.tar.gz -C /etc/dehydrated/
-# cd /etc/dehydrated
+mkdir /etc/Alteon-ACME-CertAutomation
+cd /etc/Alteon-ACME-CertAutomation
 ```
 
 3. Upload the **Alteon_Deploy_Certificate.vm**, **Alteon_Deploy_ACME_Challenge.vm**, and **Alteon_Clean_ACME_Challenge.vm** configuration templates to Cyber Controller vDirect:
@@ -54,39 +53,39 @@ Repeat this process for the secondary Cyber Controller server.
 
 5. Edit the hook.sh file and modify the Cyber Controller vDirect parameters according to your setup. For example:
 
-  a. PRIMARY_VDIRECT_IP_PORT="10.0.0.100:2189"
+    a. PRIMARY_VDIRECT_IP_PORT="10.0.0.100:2189"
 
-  b. PRIMARY_VDIRECT_USER="root"
+    b. PRIMARY_VDIRECT_USER="root"
 
-  (the password will not be writen in the file)
+    (the password will not be writen in the file)
   
-  c. SECONDARY_VDIRECT_IP_PORT="10.0.0.200:2189"
+    c. SECONDARY_VDIRECT_IP_PORT="10.0.0.200:2189"
   
-  d. SECONDARY_VDIRECT_USER="root"
+    d. SECONDARY_VDIRECT_USER="root"
   
-  (the password will not be writen in the file)
+    (the password will not be writen in the file)
   
-  e. INSECURE=false
+    e. INSECURE=false
 
-7. Copy the **letsencrypt-validation.tcl** AppShape++ script to the Alteon device, name it “letsencrypt-validation” and associate it to service 80 under the virtual servers that should eventually have service 443 with the Let’s Encrypt signed certificate.
+6. Copy the **letsencrypt-validation.tcl** AppShape++ script to the Alteon device, name it “letsencrypt-validation” and associate it to service 80 under the virtual servers that should eventually have service 443 with the Let’s Encrypt signed certificate.
 
 The virtual server should be accessible by letsencrypt with the virtual server DNS name
 
-9. Edit the renew_certificates_for_alteon_using_ACME.py file and edit the following:
+7. Edit the renew_certificates_for_alteon_using_ACME.py file and edit the following:
 
-  a. sender_email = "sender_email@company.com" -- provide the sender email.
+    a. sender_email = "sender_email@company.com" -- provide the sender email.
   
-  b. recipient_email = "recipient_email@company.com" -- provide the recipient email. For multiple recipients, provide the emails separated by a semicolon (“;”).
+    b. recipient_email = "recipient_email@company.com" -- provide the recipient email. For multiple recipients, provide the emails separated by a semicolon (“;”).
   
-  c. For Cc recipients, follow the example below in the Python file.
+    c. For Cc recipients, follow the example below in the Python file.
 
-11.	Testing the solution:
+8.	Testing the solution:
 
-  a. Edit the domains.txt file and provide a test-domain.
+    a. Edit the domains.txt file and provide a test-domain.
   
-  b. Edit the config file and make sure that the CA is the staging ACME CA - CA="https://acme-**staging**-v02.api.letsencrypt.org/directory"
+    b. Edit the config file and make sure that the CA is the staging ACME CA - CA="https://acme-**staging**-v02.api.letsencrypt.org/directory"
   
-  c. Edit the alteon_devices_per_domains.json file and map the Alteon devices to the domains.txt file:
+    c. Edit the alteon_devices_per_domains.json file and map the Alteon devices to the domains.txt file:
   
       {
         "domains.txt": "10.0.0.1,10.0.0.2"
@@ -97,36 +96,36 @@ The virtual server should be accessible by letsencrypt with the virtual server D
       
       ![image](https://github.com/user-attachments/assets/4e76a8a9-fc0e-49f3-80e2-a23956295e55)
 
-  d.	Export the **primary_cc_password_for_ACME**, **secondary_cc_password_for_ACME** (optional), and **sender_password_for_ACME** (sender_email@company.com) passwords into a variable to avoid setting it in the code as a clear text:
+    d.	Export the **primary_cc_password_for_ACME**, **secondary_cc_password_for_ACME** (optional), and **sender_password_for_ACME** (sender_email@company.com) passwords into a variable to avoid setting it in the code as a clear text:
   
       ```
-      # export primary_cc_password_for_ACME='password'
-      # export secondary_cc_password_for_ACME='password' (optional)
-      # export sender_password_for_ACME='password'
+      export primary_cc_password_for_ACME='password'
+      export secondary_cc_password_for_ACME='password' (optional)
+      export sender_password_for_ACME='password'
       ```
       
       In Addition, export the ALTEON_DEVICES
       
       ```
-      # export ALTEON_DEVICES='10.0.0.1,10.0.0.2'
+      export ALTEON_DEVICES='10.0.0.1,10.0.0.2'
       ```
       
-  e.	Before running dehydrated for the first time against the Let’s Encrypt CA (or other CA that supports ACME protocol), run the following command:
+    e.	Before running dehydrated for the first time against the Let’s Encrypt CA (or other CA that supports ACME protocol), run the following command:
   
       ```
-      # bash /etc/dehydrated/dehydrated --register --accept-terms
+      bash /etc/Alteon-ACME-CertAutomation/dehydrated --register --accept-terms
       ```
       
-  f.	Run dehydrated manually:
+    f.	Run dehydrated manually:
   
       ```
-      # bash /etc/dehydrated/dehydrated -c -x -g
+      bash /etc/Alteon-ACME-CertAutomation/dehydrated -c -x -g
       ```
       
-  g.	Run the Python script, now the email should be sent to the recipient:
+    g.	Run the Python script, now the email should be sent to the recipient:
   
       ```
-      # python3.8 renew_certificates_for_alteon_using_ACME.py
+      python3.8 renew_certificates_for_alteon_using_ACME.py
       ```
       
 9.	Implementing the solution:
@@ -149,33 +148,33 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     d.	Again run the following command to register to the production ACME CA:
   	
     ```
-    # bash /etc/dehydrated/dehydrated --register --accept-terms
+    bash /etc/Alteon-ACME-CertAutomation/dehydrated --register --accept-terms
     ```
     
     e. Run the Python script:
   	
     ```
-    # python3.8 renew_certificates_for_alteon_using_ACME.py
+    python3.8 renew_certificates_for_alteon_using_ACME.py
     ```
     
     f. Edit the crontab file to schedule the script:
   	
     ```
-    # crontab -e
+    crontab -e
     ```
     
     g. Add the line to run the script periodically. In the following example, the script will run every day at 00:00:
   	
-    0 0 * * * cd /etc/dehydrated; env primary_cc_password_for_ACME='<primary_cc_password>' secondary_cc_password_for_ACME='<secondary_cc_password>' sender_password_for_ACME='<sender_email_password>' /usr/bin/python3.8 /etc/dehydrated/renew_certificates_for_alteon_using_ACME.py > /var/log/dehydrated_last_run.log 2>&1
+    0 0 * * * cd /etc/Alteon-ACME-CertAutomation; env primary_cc_password_for_ACME='<primary_cc_password>' secondary_cc_password_for_ACME='<secondary_cc_password>' sender_password_for_ACME='<sender_email_password>' /usr/bin/python3.8 /etc/Alteon-ACME-CertAutomation/renew_certificates_for_alteon_using_ACME.py > /var/log/Alteon-ACME-CertAutomation_last_run.log 2>&1
   	
     
-11.	Send an alert when the primary Cyber Controller server that holds the ACME client is unable to renew the certificates:
+10.	Send an alert when the primary Cyber Controller server that holds the ACME client is unable to renew the certificates:
 
     a. Copy the check_the_primary_cc_and_send_mail_if_needed.py file to the secondary Cyber Controller under the /etc/check_the_primary_cc directory
    	
    	```
-    # mkdir /etc/check_the_primary_cc
-    #	cd /etc/check_the_primary_cc
+    mkdir /etc/check_the_primary_cc
+    cd /etc/check_the_primary_cc
     ```
     
     b. Edit the check_the_primary_cc_and_send_mail_if_needed.py file and modify the Cyber Controller vDirect parameters according to your setup. For example:
@@ -199,8 +198,8 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     f. Export the primary_cc_password_for_ACME, and the sender_email@company.com passwords into a variable to avoid setting it in the code as a clear text:
    	
    	```
-    # export primary_cc_password_for_ACME='password'
-    # export sender_password_for_ACME='password'
+    export primary_cc_password_for_ACME='password'
+    export sender_password_for_ACME='password'
     ```
     
     g. Test the Python script twice, one with the correct IP address, and one time with the incorrect Cyber Controller IP address:
@@ -212,7 +211,7 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     i. Edit the crontab file to schedule the script:
    	
    	```
-    # crontab -e
+    crontab -e
     ```
     
     j. Add the line to run the script periodically. The running time should be the same time as the primary Cyber Controller server runs the ACME client to renew the certificates. In the following example, the script will run every day at 00:00:
