@@ -9,13 +9,13 @@ This solution allows you automating the renewal certificate process using ACME
 - [Disclaimer](#Disclaimer)
 
 ## Description ##
-* Objective: Automating the renewal of SSL/TLS certificates for Alteon devices managed by Cyber Controller.
-* ACME Client: Utilizing 'dehydrated' for managing the lifecycle of certificates via Let's Encrypt Certificate Authority (CA).
-* Challenge Deployment: Utilizing the HTTP-01 challenge type, deploying and cleaning each domain's challenge into the Alteon devices to validate domain ownership before certificate issuance.
-* Certificate Provisioning: Automatically provisioning new certificates on designated Alteon devices upon successful renewal.
-* Logging: Maintaining detailed log files to track and review the last certificates renewal process.
-* Notifications: Sending email notifications upon completion, detailing success or failure of the certificate renewal process.
-* In the event that Cyber Controller is unable to run the script, the secondary Cyber Controller server will send an email notification about the issue.
+* Objective: Automating the renewal of SSL/TLS certificates for Alteon devices managed by Cyber Controller
+* ACME Client: Utilizing 'dehydrated' for managing the lifecycle of certificates via Let's Encrypt Certificate Authority (CA)
+* Challenge Deployment: Utilizing the HTTP-01 challenge type, deploying and cleaning each domain's challenge into the Alteon devices to validate domain ownership before certificate issuance
+* Certificate Provisioning: Automatically provisioning new certificates on designated Alteon devices upon successful renewal
+* Logging: Maintaining detailed log files to track and review the last certificates renewal process
+* Notifications: Sending email notifications upon completion, detailing success, unchanged or failure of the certificate renewal process
+* In the event that Cyber Controller is unavailable, the secondary Cyber Controller server will send an email notification about that issue
 
 ## Pre Requisites ##
 *   At least one Cyber Controller server version 10.5 and above, with internet connectivity
