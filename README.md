@@ -174,9 +174,10 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     ```
     
     g. Add the line to run the script periodically. In the following example, the script will run every day at 00:00:
-  	
+
+  	```
     0 0 * * * cd /etc/Alteon-ACME-CertAutomation; env primary_cc_password_for_ACME='<primary_cc_password>' secondary_cc_password_for_ACME='<secondary_cc_password>' sender_password_for_ACME='<sender_email_password>' /usr/bin/python3.8 /etc/Alteon-ACME-CertAutomation/renew_certificates_for_alteon_using_ACME.py > /var/log/Alteon-ACME-CertAutomation_last_run.log 2>&1
-  	
+  	```
     
 11.	Send an alert when the primary Cyber Controller server that holds the ACME client is unable to renew the certificates:
 
@@ -228,7 +229,9 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     
     j. Add the line to run the script periodically. The running time should be the same time as the primary Cyber Controller server runs the ACME client to renew the certificates. In the following example, the script will run every day at 00:00:
    	
+   	```
     0 0 * * * cd /etc/check_the_primary_cc; env primary_cc_password_for_ACME='<cc_password>' sender_password_for_ACME='<sender_email_password>' /usr/bin/python3.8 /etc/check_the_primary_cc/check_the_primary_cc_and_send_mail_if_needed.py > /var/log/check_the_primary_cc_last_run.log 2>&1
+    ```
    	
 ## Limitation ##
 When upgrading or implementing HA for Cyber Controller, ensure that you back up all ACME dehydrated files along with the cron command, and redeploy them if needed.
