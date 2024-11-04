@@ -57,7 +57,7 @@ Alternatively, you can choose **Create a new template** and paste the configurat
 
 Repeat this process for the secondary Cyber Controller server.
 
-5. Edit the config file and modify the required parameters from their defaults, if necessary (such as the Let’s Encrypt URL, key size, key algorithm RSA/ECC parameters).
+5. Edit the **config** file and modify the required parameters from their defaults, if necessary (such as the Let’s Encrypt URL, key size, key algorithm RSA/ECC parameters).
 
 6. Edit the hook.sh file and modify the Cyber Controller vDirect parameters according to your setup. For example:
 
@@ -91,7 +91,7 @@ The virtual server should be accessible by letsencrypt with the virtual server D
 
     a. Edit the **domains.txt** file and provide a test-domain
   
-    b. Edit the **config file** and make sure that the CA is the staging ACME CA - CA="https://acme-staging-v02.api.letsencrypt.org/directory".
+    b. Edit the **config** file and make sure that the CA is the staging ACME CA - CA="https://acme-staging-v02.api.letsencrypt.org/directory".
   
     c. Edit the **alteon_devices_per_domains.json** file and map the Alteon management IP addresses to the domains.txt file. For example:
   
@@ -151,7 +151,7 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     
     Note: Every line should begin with a domain that will be used as the CN (Common Name) for the certificate and with optional additional domains that will be used as SAN (Subject Alternative Names).
     
-    c. Edit the config file and make sure that the CA is the production ACME CA:
+    c. Edit the **config** file and make sure that the CA is the production ACME CA:
   	
     CA="https://acme-v02.api.letsencrypt.org/directory"
   	
