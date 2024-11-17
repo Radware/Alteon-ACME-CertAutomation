@@ -42,7 +42,7 @@ cd /etc/Alteon-ACME-CertAutomation
 3. Grant executable permission to the following files:
 
 ```
-chmod +x hook.sh dehydrated renew_certificates_for_alteon_using_ACME.py check_the_primary_cc_and_send_mail_if_needed.py
+chmod +x hook.sh dehydrated renew_certificates_for_alteon_using_ACME.sh check_the_primary_cc_and_send_mail_if_needed.sh
 ```
 
 4. Upload the **Alteon_Deploy_Certificate.vm**, **Alteon_Deploy_ACME_Challenge.vm**, and **Alteon_Clean_ACME_Challenge.vm** configuration templates to Cyber Controller vDirect:
@@ -79,13 +79,13 @@ Repeat this process for the secondary Cyber Controller server.
 
 The virtual server should be accessible by letsencrypt with the virtual server DNS name.
 
-8. Edit the **renew_certificates_for_alteon_using_ACME.py** file and edit the following:
+8. Edit the **renew_certificates_for_alteon_using_ACME.sh** file and edit the following:
 
-    a. sender_email = "sender_email@company.com" -- provide the sender email.
+    a. SENDER_EMAIL = "sender_email@company.com" -- provide the sender email.
   
-    b. recipient_email = "recipient_email@company.com" -- provide the recipient email. For multiple recipients, provide the emails separated by a semicolon (“;”).
+    b. RECIPIENT_EMAIL = "recipient_email@company.com" -- provide the recipient email.
   
-    c. For Cc recipients, follow the example below in the Python file.
+    c. For additional recipients, follow the example below in the code.
 
 9.	Testing the solution:
 
@@ -104,15 +104,16 @@ The virtual server should be accessible by letsencrypt with the virtual server D
       
       ![image](https://github.com/user-attachments/assets/4e76a8a9-fc0e-49f3-80e2-a23956295e55)
 
-    d.	Export the **primary_cc_password_for_ACME**, **secondary_cc_password_for_ACME** (optional), and **sender_password_for_ACME** (sender_email@company.com) passwords into a variable to avoid setting it in the code as a clear text:
+    d.	Export the **primary_cc_password_for_ACME**, **secondary_cc_password_for_ACME** (optional), **https_proxy** (optional), and **sender_password_for_ACME** (for sender_email@company.com) as environment variables to avoid setting them as plaintext in the code:
   
       ```
       export primary_cc_password_for_ACME='password'
       export secondary_cc_password_for_ACME='password' (optional)
+      export https_proxy='http://user:password@host:port' (optional)
       export sender_password_for_ACME='password'
       ```
       
-      In Addition, export the ALTEON_DEVICES
+      In Addition, export the **ALTEON_DEVICES**
       
       ```
       export ALTEON_DEVICES='10.0.0.1,10.0.0.2'
@@ -130,10 +131,10 @@ The virtual server should be accessible by letsencrypt with the virtual server D
       bash /etc/Alteon-ACME-CertAutomation/dehydrated -c -x -g
       ```
       
-    g.	Run the Python script, now the email should be sent to the recipient:
+    g.	Run the bash script, now the email should be sent to the recipient:
   
       ```
-      python3.8 renew_certificates_for_alteon_using_ACME.py
+      bash renew_certificates_for_alteon_using_ACME.sh
       ```
       
 10.	Implementing the solution:
@@ -161,10 +162,10 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     bash /etc/Alteon-ACME-CertAutomation/dehydrated --register --accept-terms
     ```
     
-    e. Run the Python script:
+    e. Run the bash script:
   	
     ```
-    python3.8 renew_certificates_for_alteon_using_ACME.py
+    bash renew_certificates_for_alteon_using_ACME.sh
     ```
     
     f. Edit the crontab file to schedule the script:
@@ -176,19 +177,19 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     g. Add the line to run the script periodically. In the following example, the script will run every day at 00:00:
 
   	```
-    0 0 * * * cd /etc/Alteon-ACME-CertAutomation; env primary_cc_password_for_ACME='<primary_cc_password>' secondary_cc_password_for_ACME='<secondary_cc_password>' sender_password_for_ACME='<sender_email_password>' /usr/bin/python3.8 /etc/Alteon-ACME-CertAutomation/renew_certificates_for_alteon_using_ACME.py > /var/log/Alteon-ACME-CertAutomation_last_run.log 2>&1
+    0 0 * * * cd /etc/Alteon-ACME-CertAutomation; env https_proxy='<http://username:password@host:port>' primary_cc_password_for_ACME='<primary_cc_password_for_ACME>' secondary_cc_password_for_ACME='<secondary_cc_password_for_ACME>' sender_password_for_ACME='<sender_password_for_ACME>' /usr/bin/bash /etc/Alteon-ACME-CertAutomation/renew_certificates_for_alteon_using_ACME.sh > /var/log/Alteon-ACME-CertAutomation_last_run.log 2>&1
   	```
-    
+
 11.	Send an alert when the primary Cyber Controller server that holds the ACME client is unable to renew the certificates:
 
-    a. Move / copy the **check_the_primary_cc_and_send_mail_if_needed.py** file to the secondary Cyber Controller under the /etc/check_the_primary_cc directory.
+    a. Move / copy the **check_the_primary_cc_and_send_mail_if_needed.sh** file to the secondary Cyber Controller under the /etc/check_the_primary_cc directory.
    	
    	```
     mkdir /etc/check_the_primary_cc
     cd /etc/check_the_primary_cc
     ```
     
-    b. Edit the check_the_primary_cc_and_send_mail_if_needed.py file and modify the Cyber Controller vDirect parameters according to your setup. For example:
+    b. Edit the check_the_primary_cc_and_send_mail_if_needed.sh file and modify the Cyber Controller vDirect parameters according to your setup. For example:
    	
     primary_cc_ip_port = "10.0.0.100:2189"
    	
@@ -198,28 +199,27 @@ The virtual server should be accessible by letsencrypt with the virtual server D
    	
     insecure = False
    	
-   	c. Set the sender_email = "sender_email@company.com" -- provide the sender email.
+   	c. Set the SMTP_SERVER="sender_email@company.com" -- provide the sender email.
    	
-    d. Set the recipient_email = "recipient_email@company.com" -- provide the recipient email.
+    d. Set the SENDER_EMAIL="recipient_email@company.com" -- provide the recipient email.
    	
-   	For multiple recipients, provide the emails separated by semicolon (“;”).
+    e. For additional recipients, follow the example below in the code.
    	
-    e. For Cc recipients, follow the example below in the Python file.
-   	
-    f. Export the primary_cc_password_for_ACME, and the sender_email@company.com passwords into a variable to avoid setting it in the code as a clear text:
+    f. Export the **primary_cc_password_for_ACME**, **sender_password_for_ACME**, and the **https_proxy** (optional) as environment variables to avoid setting them as plaintext in the code.:
    	
    	```
     export primary_cc_password_for_ACME='password'
     export sender_password_for_ACME='password'
+    export https_proxy='http://user:password@host:port' (optional)
     ```
     
-    g. Test the Python script twice, one with the correct IP address, and one time with the incorrect Cyber Controller IP address:
+    g. Test the bash script twice, one with the correct IP address, and one time with the incorrect Cyber Controller IP address:
    	
    	```
-    python3.8 check_the_primary_cc_and_send_mail_if_needed.py
+    bash check_the_primary_cc_and_send_mail_if_needed.sh
    	```
     
-    h. Change back the Python file with the correct IP address.
+    h. Change back the bash script with the correct IP address.
    	
     i. Edit the crontab file to schedule the script:
    	
@@ -230,7 +230,7 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     j. Add the line to run the script periodically. The running time should be the same time as the primary Cyber Controller server runs the ACME client to renew the certificates. In the following example, the script will run every day at 00:00:
    	
    	```
-    0 0 * * * cd /etc/check_the_primary_cc; env primary_cc_password_for_ACME='<cc_password>' sender_password_for_ACME='<sender_email_password>' /usr/bin/python3.8 /etc/check_the_primary_cc/check_the_primary_cc_and_send_mail_if_needed.py > /var/log/check_the_primary_cc_last_run.log 2>&1
+    cd /etc/Alteon-ACME-CertAutomation; env https_proxy='<http://username:password@host:port>' primary_cc_password_for_ACME='<primary_cc_password_for_ACME>' sender_password_for_ACME='<sender_password_for_ACME>' /usr/bin/bash /etc/Alteon-ACME-CertAutomation/renew_certificates_for_alteon_using_ACME.sh > /var/log/check_the_primary_cc_last_run.log 2>&1
     ```
    	
 ## Limitation ##
