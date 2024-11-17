@@ -151,7 +151,7 @@ alteon_devices_per_domains=$(jq -r 'keys[]' "$ALTEON_DEVICES_PER_DOMAINS_FILE")
 # Prepare certs_status.json
 prepare_certs_status_file
 
-# Run dehydrated for each domain
+# Run dehydrated for each domain txt with the relevant Alteon devices
 for domains_file in $alteon_devices_per_domains; do
     alteon_devices=$(jq -r --arg file "$domains_file" '.[$file]' "$ALTEON_DEVICES_PER_DOMAINS_FILE")
     export ALTEON_DEVICES="$alteon_devices"
@@ -175,4 +175,3 @@ fi
 
 echo "Sending an email..."
 send_mail "$subject" "$html_table"
-
