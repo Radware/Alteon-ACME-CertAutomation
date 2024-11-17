@@ -81,9 +81,9 @@ The virtual server should be accessible by letsencrypt with the virtual server D
 
 8. Edit the **renew_certificates_for_alteon_using_ACME.sh** file and edit the following:
 
-    a. SENDER_EMAIL = "sender_email@company.com" -- provide the sender email.
+    a. SENDER_EMAIL="sender_email@company.com" -- provide the sender email.
   
-    b. RECIPIENT_EMAIL = "recipient_email@company.com" -- provide the recipient email.
+    b. RECIPIENT_EMAIL="recipient_email@company.com" -- provide the recipient email.
   
     c. For additional recipients, follow the example below in the code.
 
@@ -199,9 +199,9 @@ The virtual server should be accessible by letsencrypt with the virtual server D
    	
     insecure = False
    	
-   	c. Set the SMTP_SERVER="sender_email@company.com" -- provide the sender email.
+   	c. Set the SENDER_EMAIL="sender_email@company.com" -- provide the sender email.
    	
-    d. Set the SENDER_EMAIL="recipient_email@company.com" -- provide the recipient email.
+    d. Set the RECIPIENT_EMAIL="recipient_email@company.com" -- provide the recipient email.
    	
     e. For additional recipients, follow the example below in the code.
    	
