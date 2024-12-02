@@ -87,18 +87,23 @@ create_html_table() {
 
 # Determine email subject
 determine_subject() {
-    local certs_status_file="$1"
+    local certs_status_file=$1
     local statuses
     statuses=$(jq -r '.[]' "$certs_status_file" | sort -u)
 
-    if [[ "$statuses" == "Unchanged" ]]; then
+    if jq -e '.[] | select(. == "")' "$certs_status_file" > /dev/null; then
+        echo "There is a failure while renewing the certificates"
+    elif [[ "$statuses" == "Unchanged" ]]; then
         echo "All certificates are unchanged"
+    elif jq -e '.[] | select(. == "Failed")' "$certs_status_file" > /dev/null; then
+        echo "There is a failure while renewing the certificates"
     elif [[ "$statuses" =~ Success|Unchanged ]] && jq -e '.[] | select(. != "Success" and . != "Unchanged")' "$certs_status_file" > /dev/null; then
         echo "There is a failure while renewing the certificates"
     else
         echo "Cyber Controller successfully renewed the certificates"
     fi
 }
+
 
 # Send mail
 send_mail() {
