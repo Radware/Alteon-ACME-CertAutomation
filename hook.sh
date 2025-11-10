@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Primary Cyber Controller parameters
-PRIMARY_CC_IP="10.0.0.1"
+PRIMARY_CC_IP="10.0.0.100"
 PRIMARY_CC_USER="ACME-User"
 PRIMARY_CC_PASS="${primary_cc_password_for_ACME}"
 
