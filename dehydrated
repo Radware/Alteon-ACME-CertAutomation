@@ -5,7 +5,6 @@
 #
 # This script is licensed under The MIT License (see LICENSE for more information).
 
-JSON_FILE_CERTS_STATUS="$(pwd)/certs_status.json"
 
 set -e
 set -u
@@ -1840,12 +1839,6 @@ command_sign_domains() {
           # Certificate-Names unchanged and cert is still valid
           echo "Skipping renew!"
           [[ -n "${HOOK}" ]] && ("${HOOK}" "unchanged_cert" "${domain}" "${certdir}/privkey.pem" "${certdir}/cert.pem" "${certdir}/fullchain.pem" "${certdir}/chain.pem" || _exiterr 'unchanged_cert hook returned with non-zero exit code')
-	  # Start of Adding status to table
-	  SANs=$(openssl x509 -in "${cert}" -noout -text | grep -oP '(?<=DNS:)[^,]*')
-          for DOMAIN_FROM_CERT in $SANs; do
-              jq --arg domain "$DOMAIN_FROM_CERT" --arg value "Unchanged" '. + {($domain): $value}' "$JSON_FILE_CERTS_STATUS" > "$JSON_FILE_CERTS_STATUS.tmp" && mv "$JSON_FILE_CERTS_STATUS.tmp" "$JSON_FILE_CERTS_STATUS"
-          done
-          # End of Adding status to table
           skip="yes"
         fi
       else
