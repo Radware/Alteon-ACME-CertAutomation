@@ -47,25 +47,28 @@ chmod +x hook.sh dehydrated renew_certificates_for_alteon_using_ACME.sh check_th
 
 4. Upload the **Alteon_Deploy_Certificate.vm**, **Alteon_Deploy_ACME_Challenge.vm**, and **Alteon_Clean_ACME_Challenge.vm** configuration templates to Cyber Controller vDirect:
 
-![image](https://github.com/user-attachments/assets/8164430f-0eb5-45ca-9078-84274b779b8c)
+    ![image](https://github.com/user-attachments/assets/8164430f-0eb5-45ca-9078-84274b779b8c)
 
-![image](https://github.com/user-attachments/assets/40fa2d1c-ac24-4d5b-ba40-ff68573a711c)
+    ![image](https://github.com/user-attachments/assets/40fa2d1c-ac24-4d5b-ba40-ff68573a711c)
 
-![image](https://github.com/user-attachments/assets/16e481df-fbcf-43c2-9eb2-b538517f8682)
+    ![image](https://github.com/user-attachments/assets/16e481df-fbcf-43c2-9eb2-b538517f8682)
 
-Alternatively, you can choose **Create a new template** and paste the configuration files content, make sure provide the exact names.
+    Alternatively, you can choose **Create a new template** and paste the configuration files content, make sure provide the exact names.
 
-Repeat this process for the secondary Cyber Controller server.
+    Repeat this process for the secondary Cyber Controller server.
 
 5.  Open the Cyber Controller and create a dedicated user who can deploy and clean the challenge, as well as deploy certificates on the Alteon devices.
 
-Screeshots for example:
+    Screeshots for example:
 
-<img width="894" height="531" alt="Creating user on CC" src="https://github.com/user-attachments/assets/3020dbf5-16a5-494a-a1e8-6bb04cd91fa4" />
+    <img width="641" height="319" alt="Creating user on CC" src="https://github.com/user-attachments/assets/66f37829-7457-4b4f-89d9-d5f6990cd59a" />
 
-<img width="465" height="252" alt="Granting permissions" src="https://github.com/user-attachments/assets/e592fecc-ad45-469a-995a-1f07aca1c558" />
 
-<img width="655" height="395" alt="Setting the password" src="https://github.com/user-attachments/assets/05bd498e-5475-43ef-b7c5-df6652a29cf7" />
+    <img width="465" height="252" alt="Granting permissions" src="https://github.com/user-attachments/assets/e592fecc-ad45-469a-995a-1f07aca1c558" />
+
+
+    <img width="655" height="395" alt="Setting the password" src="https://github.com/user-attachments/assets/05bd498e-5475-43ef-b7c5-df6652a29cf7" />
+
 
 7.  Edit the **config** file and modify the required parameters from their defaults, if necessary (such as the Let’s Encrypt URL, key size, key algorithm RSA/ECC parameters).
 
