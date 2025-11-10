@@ -57,9 +57,11 @@ Alternatively, you can choose **Create a new template** and paste the configurat
 
 Repeat this process for the secondary Cyber Controller server.
 
-5. Edit the **config** file and modify the required parameters from their defaults, if necessary (such as the Let’s Encrypt URL, key size, key algorithm RSA/ECC parameters).
+5.  Open the Cyber Controller and create a dedicated user who can deploy and clean the challenge, as well as deploy certificates on the Alteon devices.
 
-6. Edit the hook.sh file and modify the Cyber Controller vDirect parameters according to your setup. For example:
+6.  Edit the **config** file and modify the required parameters from their defaults, if necessary (such as the Let’s Encrypt URL, key size, key algorithm RSA/ECC parameters).
+
+7. Edit the hook.sh file and modify the Cyber Controller vDirect parameters according to your setup. For example:
 
     a. PRIMARY_CC_IP="10.0.0.100"
 
@@ -75,7 +77,7 @@ Repeat this process for the secondary Cyber Controller server.
   
     e. INSECURE=false
 
-7. Copy the **letsencrypt-validation.tcl** AppShape++ script to the Alteon device, name it “letsencrypt-validation” and associate it to service 80 under the virtual servers that should eventually have service 443 with the Let’s Encrypt signed certificate
+8. Copy the **letsencrypt-validation.tcl** AppShape++ script to the Alteon device, name it “letsencrypt-validation” and associate it to service 80 under the virtual servers that should eventually have service 443 with the Let’s Encrypt signed certificate
 
 The virtual server should be accessible by letsencrypt with the virtual server DNS name.
 
