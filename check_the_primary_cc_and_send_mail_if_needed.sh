@@ -1,80 +1,93 @@
 #!/bin/bash
 
+# ===========================
 # SMTP Configuration
+# ===========================
 SMTP_SERVER="smtp.office365.com:587"
-SENDER_EMAIL="sender_email@company.com"
+SENDER_EMAIL="sender@company.com"
 RECIPIENT_EMAIL=("recipient@company.com")
-# Example of multiple recipients:
-# RECIPIENT_EMAIL=("recipient1@company.com" "recipient2@company.com" "recipient3@company.com")
 SENDER_PASSWORD="${sender_password_for_ACME:-}"
 PROXY="${https_proxy:-}"
 
+# ===========================
 # Cyber Controller Configuration
-PRIMARY_CC_IP_PORT="10.0.0.1:2189"
-CC_USER="root"
-CC_PASSWORD="$primary_cc_password_for_ACME"
+# ===========================
+PRIMARY_CC_IP="10.0.0.100"
+CC_USER="ACME-User"
+CC_PASSWORD="$(printenv primary_cc_password_for_ACME)"
 INSECURE=true
 
-# Check if --insecure should be used
+# ===========================
+# CURL Configuration
+# ===========================
 CURL_OPTIONS=""
 if [ "$INSECURE" = true ]; then
     CURL_OPTIONS="--insecure"
 fi
 
-# Fetch environment variables for passwords
-primary_cc_password_for_ACME=$(printenv primary_cc_password_for_ACME)
+# ===========================
+# Function: Perform Curl to CC
+# ===========================
+perform_curl() {
+    local CC_IP=$1
+    local username=$2
+    local password=$3
+    local temp_response
 
-check_primary_cc_availability() {
+    echo "Logging in to Cyber Controller at $CC_IP..."
+    CC_JSESSION=$(curl -s -X POST "https://$CC_IP/mgmt/system/user/login" \
+        -H 'Content-Type: application/json' \
+        --data '{"username": "'"$username"'", "password": "'"$password"'"}' \
+        $CURL_OPTIONS | jq -r '.jsessionid')
 
-    # Check if environment variables are set
-    if [[ -z "$primary_cc_password_for_ACME" ]]; then
-        echo "Error: 'primary_cc_password_for_ACME' environment variable is not set."
-        exit 1
+    if [[ -z "$CC_JSESSION" || "$CC_JSESSION" == "null" ]]; then
+        echo "Login failed: No JSESSIONID received"
+        return 1
     fi
 
-    url="https://${PRIMARY_CC_IP_PORT}/api/adc"
+    echo "CC_JSESSION: $CC_JSESSION"
 
-    # Headers
-    headers=(
-        -H "accept: application/json, text/plain, */*"
-        -H "user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
-(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
-    )
+    # Perform a lightweight API check to confirm availability
+    echo "Checking API health..."
+    temp_response=$(curl -s -w "%{http_code}" "https://$CC_IP/api/adc" \
+        -H "content-type: application/json" \
+        -b "JSESSIONID=$CC_JSESSION" \
+        $CURL_OPTIONS)
 
-    # Attempt to send request up to 3 times
-    for attempt in {1..3}; do
-        response=$(curl -s -o /dev/null -w "%{http_code}" --user "$CC_USER:$CC_PASSWORD" \
-"${headers[@]}" $CURL_OPTIONS "$url")
-        if [[ "$response" == "200" ]]; then
-            echo "Attempt $attempt: Success"
-            return 0
-        elif [[ $attempt -lt 3 ]]; then
-            echo "Attempt $attempt: Failed with status code $response"
-            echo "Trying again in 10 seconds..."
-            sleep 10
-        else
-            echo "Attempt $attempt: Failed with status code $response"
-            return 1
-        fi
-    done
+    RESPONSE_BODY="${temp_response::-3}"
+    RESPONSE_CODE="${temp_response: -3}"
+
+    echo "Response Code: $RESPONSE_CODE"
+
+    # Logout to clean up session
+    echo "Logging out from Cyber Controller..."
+    curl -s "https://$CC_IP/mgmt/system/user/logout" \
+        -H 'content-type: application/json;charset=UTF-8' \
+        -b "JSESSIONID=$CC_JSESSION" \
+        --data-raw '{"headers":{"Content-Type":"application/json","Cache-Control":"no-cache"}}' \
+        $CURL_OPTIONS > /dev/null
+
+    if [[ "$RESPONSE_CODE" == "200" ]]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
-# Send mail
+# ===========================
+# Function: Send Email
+# ===========================
 send_mail() {
     local subject="$1"
     local body="$2"
-    local status_code
 
-    # Combine the list of recipients for the To: field
     TO_FIELD=$(IFS=, ; echo "${RECIPIENT_EMAIL[*]}")
 
-    # Prepare the --mail-rcpt options for each recipient
     MAIL_RCPT_OPTIONS=()
     for email in "${RECIPIENT_EMAIL[@]}"; do
         MAIL_RCPT_OPTIONS+=(--mail-rcpt "$email")
     done
 
-    # Set up email headers
     {
         echo "From: $SENDER_EMAIL"
         echo "To: $TO_FIELD"
@@ -102,15 +115,44 @@ send_mail() {
     }
 }
 
+# ===========================
+# Main Script Execution
+# ===========================
+if [[ -z "$CC_PASSWORD" ]]; then
+    echo "Error: Environment variable 'primary_cc_password_for_ACME' is not set."
+    exit 1
+fi
 
-# Main script execution
-check_primary_cc_availability
-primary_cc_status=$?
+echo "Checking Cyber Controller availability..."
+
+# Try up to 3 times
+max_attempts=3
+attempt=1
+primary_cc_status=1
+
+while [[ $attempt -le $max_attempts ]]; do
+    echo "Attempt $attempt of $max_attempts..."
+    perform_curl "$PRIMARY_CC_IP" "$CC_USER" "$CC_PASSWORD"
+    primary_cc_status=$?
+
+    if [[ "$primary_cc_status" -eq 0 ]]; then
+        echo "Primary Cyber Controller is available."
+        break
+    else
+        echo "Attempt $attempt failed."
+        if [[ $attempt -lt $max_attempts ]]; then
+            echo "Retrying in 10 seconds..."
+            sleep 10
+        fi
+    fi
+    ((attempt++))
+done
 
 if [[ "$primary_cc_status" -ne 0 ]]; then
+    echo "All $max_attempts attempts failed. Sending alert email."
     send_mail "Cyber Controller Error: Certificate Renewal Issue" \
-    "It appears that the Cyber Controller managing the ACME client is down and unable to renew the Alteon certificates.<br>This message was sent from the secondary Cyber Controller."
+    "It appears that the Cyber Controller managing the ACME client is down and unable to renew the Alteon certificates.<br>This message was sent from the secondary Cyber Controller after $max_attempts failed attempts."
 else
-    echo "Primary Cyber Controller is available"
+    echo "Primary Cyber Controller responded successfully."
 fi
 
