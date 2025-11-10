@@ -61,15 +61,15 @@ Repeat this process for the secondary Cyber Controller server.
 
 6. Edit the hook.sh file and modify the Cyber Controller vDirect parameters according to your setup. For example:
 
-    a. PRIMARY_VDIRECT_IP_PORT="10.0.0.100:2189"
+    a. PRIMARY_CC_IP="10.0.0.100"
 
-    b. PRIMARY_VDIRECT_USER="root"
+    b. PRIMARY_CC_USER="ACME-User"
 
     (the password will not be writen in the file)
   
-    c. SECONDARY_VDIRECT_IP_PORT="10.0.0.200:2189"
+    c. SECONDARY_CC_IP="10.0.0.200"
   
-    d. SECONDARY_VDIRECT_USER="root"
+    d. SECONDARY_CC_USER="ACME-User"
   
     (the password will not be writen in the file)
   
@@ -189,11 +189,11 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     cd /etc/check_the_primary_cc
     ```
     
-    b. Edit the check_the_primary_cc_and_send_mail_if_needed.sh file and modify the Cyber Controller vDirect parameters according to your setup. For example:
+    b. Edit the check_the_primary_cc_and_send_mail_if_needed.sh file and modify the Cyber Controller parameters according to your setup. For example:
    	
-    primary_cc_ip_port = "10.0.0.100:2189"
+    PRIMARY_CC_IP="10.0.0.100"
    	
-    cc_user = "root"
+    CC_USER="ACME-User"
    	
     (the password will not be writen in the file)
    	
