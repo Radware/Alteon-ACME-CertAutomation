@@ -22,6 +22,7 @@ This solution allows you automating the renewal certificate process using ACME
 *	The Alteon's virtual servers should be accessible from the Internet
 *	Public DNS record for each virtual server for validation by ACME
 *	Office365 account for sending email notifications
+*	The solution can be installed on a Linux server or Cyber Controller
 
 ## How To Use ##
 1. Get the files with git or download them manually, example how to get that using git command from the Cyber-Controller:
