@@ -5,12 +5,13 @@ This solution allows you automating the renewal certificate process using ACME
 - [Description](#description)
 - [Pre Requisites](#Pre-Requisites)
 - [How To Use](#how-to-use)
+- [Tested CAs](#tested-cas)
 - [Limitation](#Limitation)
 - [Disclaimer](#Disclaimer)
 
 ## Description ##
 * Objective: Automating the renewal of SSL/TLS certificates for Alteon devices managed by Cyber Controller
-* ACME Client: Utilizing 'dehydrated' for managing the lifecycle of certificates via Let's Encrypt Certificate Authority (CA)
+* ACME Client: Utilizing 'dehydrated' for managing the lifecycle of certificates via any ACME-compatible Certificate Authority (CA)
 * Challenge Deployment: Utilizing the HTTP-01 challenge type, deploying and cleaning each domain's challenge into the Alteon devices to validate domain ownership before certificate issuance
 * Certificate Provisioning: Automatically provisioning new certificates on designated Alteon devices upon successful renewal
 * Logging: Maintaining detailed log files to track and review the last certificates renewal process
@@ -71,7 +72,7 @@ chmod +x hook.sh dehydrated renew_certificates_for_alteon_using_ACME.sh check_th
     <img width="655" height="395" alt="Setting the password" src="https://github.com/user-attachments/assets/05bd498e-5475-43ef-b7c5-df6652a29cf7" />
 
 
-7.  Edit the **config** file and modify the required parameters from their defaults, if necessary (such as the Let’s Encrypt URL, key size, key algorithm RSA/ECC parameters).
+7.  Edit the config file and modify the required parameters from their defaults, if necessary (for example, the ACME CA URL, EAB_KID (not required for the Let’s Encrypt CA), EAB_HMAC_KEY (not required for the Let’s Encrypt CA), key size, and key algorithm and parameters (RSA/ECC)).
 
 8. Edit the hook.sh file and modify the Cyber Controller vDirect parameters according to your setup. For example:
 
@@ -133,7 +134,7 @@ The virtual server should be accessible by letsencrypt with the virtual server D
       export ALTEON_DEVICES='10.0.0.1,10.0.0.2'
       ```
       
-    e.	Before running dehydrated for the first time against the Let’s Encrypt CA (or other CA that supports ACME protocol), run the following command:
+    e.	Before running dehydrated for the first time against the CA, run the following command:
   
       ```
       bash /etc/Alteon-ACME-CertAutomation/dehydrated --register --accept-terms
@@ -166,11 +167,11 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     
     Note: Every line should begin with a domain that will be used as the CN (Common Name) for the certificate and with optional additional domains that will be used as SAN (Subject Alternative Names).
     
-    c. Edit the **config** file and make sure that the CA is the production ACME CA:
+    c. Edit the **config** file and make sure that the CA is set to your desired production ACME CA:
   	
     CA="https://acme-v02.api.letsencrypt.org/directory"
   	
-    d.	Again run the following command to register to the production ACME CA:
+    d.	Again run the following command to register with the production CA:
   	
     ```
     bash /etc/Alteon-ACME-CertAutomation/dehydrated --register --accept-terms
@@ -247,6 +248,21 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     cd /etc/Alteon-ACME-CertAutomation; env https_proxy='<http://username:password@host:port>' primary_cc_password_for_ACME='<primary_cc_password_for_ACME>' sender_password_for_ACME='<sender_password_for_ACME>' /usr/bin/bash /etc/Alteon-ACME-CertAutomation/renew_certificates_for_alteon_using_ACME.sh > /var/log/check_the_primary_cc_last_run.log 2>&1
     ```
    	
+## Tested CAs ##
+
+This solution should work with any Certificate Authority that supports the ACME protocol.
+
+The solution has been tested with:
+* **Let's Encrypt** - No EAB required
+* **Google Trust Services** - Requires `EAB_KID` and `EAB_HMAC_KEY` to be configured in the **config** file
+
+**Note:** Some CAs require External Account Binding (EAB). If your CA requires EAB, add the following to your **config** file:
+
+```
+EAB_KID="your_eab_key_id"
+EAB_HMAC_KEY="your_eab_hmac_key"
+```
+
 ## Limitation ##
 When upgrading or implementing HA for Cyber Controller, ensure that you back up all ACME dehydrated files along with the cron command, and redeploy them if needed.
 
