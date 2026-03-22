@@ -7,6 +7,7 @@ This solution allows you automating the renewal certificate process using ACME
 - [How To Use](#how-to-use)
 - [Tested CAs](#tested-cas)
 - [Limitation](#Limitation)
+- [Support](#Support)
 - [Disclaimer](#Disclaimer)
 
 ## Description ##
@@ -266,5 +267,8 @@ EAB_HMAC_KEY="your_eab_hmac_key"
 ## Limitation ##
 When upgrading or implementing HA for Cyber Controller, ensure that you back up all ACME dehydrated files along with the cron command, and redeploy them if needed.
 
+## Support ##
+For any further inquiries or requests, please contact Radware.
+
 ## Disclaimer ##
-There is no warranty, expressed or implied, associated with this product. Use at your own risk.
+There is no warranty, expressed or implied, associated with this product.
