@@ -249,7 +249,14 @@ function deploy_cert {
 
     KEY_CONTENT=$(cat ${KEYFILE} | sed ':a;N;$!ba;s/\n/\\n/g')
     CERT_CONTENT=$(cat ${CERTFILE} | sed ':a;N;$!ba;s/\n/\\n/g')
-    CHAIN_CONTENT=$(cat ${CHAINFILE} | sed ':a;N;$!ba;s/\n/\\n/g')
+    CHAIN_CONTENT=$(
+      awk '
+        /-----BEGIN CERTIFICATE-----/ {found=1}
+        found {print}
+        /-----END CERTIFICATE-----/ && found {exit}
+      ' "${CHAINFILE}" | sed ':a;N;$!ba;s/\n/\\n/g'
+    )
+
 
     # echo $KEY_CONTENT
     # echo $CERT_CONTENT
