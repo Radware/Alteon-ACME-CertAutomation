@@ -2,6 +2,7 @@
 #device($alteons, 'type=alteon[]')
 
 #param($TOKEN_FILENAME,'string','in', 'prompt=Challenge token filename')
+#param($output, 'type=string','out')
 
 #set($expect.timeout = 15)
 #set($expect.failOnTimeout = true)
@@ -11,6 +12,58 @@
     #select($alteon)
 	#savereplies(false)
 		/c/slb/dataclss/class acme_responses string/rem $TOKEN_FILENAME
-        $alteon.commit()
+        #ApplySaveSync($alteon)
 	#end
+#end
+
+#set($output = 'Success')
+
+
+#macro(ApplySaveSync, $device)
+    #savereplies(false)
+    	#select($device)
+        apply
+        #set($bean = $device.readBean('HaSwitchInfo'))
+        #log("Device HA status is: $bean.haSwitchInfoState")
+        
+        #expectCase()
+            #case('No apply needed.*')
+            #log("No apply needed")
+            #end
+            #case('Synchronize configuration changes.*')
+                #if("$bean.haSwitchInfoState" == "master")
+                #log("Syncing")
+				y
+                #else
+                #log("Not Syncing")
+				n
+                #end
+                #expect('Apply complete.*')
+            #end
+            #case('Apply complete.*')
+            #log("Apply complete")
+            #end
+            #case(".*Error: Key '.*' does not exist.*")
+            #log("Key does not exist - ignoring")
+            #end
+            #case('.*Error.*')
+                #error($expect.input.replace('apply',''))
+            #end
+        #end
+
+        save
+        #expectCase()
+        	#case('No save needed.*')
+        		#log("No save needed")
+        	#end
+        	#case('Confirm saving to FLASH.*')
+        		#log("Saving")
+				y
+        	#end
+        	#case('Please enter y to perform the action, n to skip it.*')
+        		#log("Saving retry prompt")
+				y
+        	#end
+        #end
+    #end
 #end
