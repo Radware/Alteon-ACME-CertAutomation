@@ -10,7 +10,7 @@
 #param($srvrcert, 'string', 'in', 'format=pem', 'prompt=Server Certificate in PEM format')
 #param($intermca, 'string', 'in', 'format=pem', 'prompt=Intermediate CA Certificate in PEM format')
 
-#set($expect.timeout = 15)
+#set($expect.timeout = 60)
 #set($expect.failOnTimeout = true)
 #set($expect.failOnEOF = true)
 
