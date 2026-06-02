@@ -4,7 +4,7 @@
 #param($TOKEN_FILENAME,'string','in', 'prompt=Challenge token filename')
 #param($output, 'type=string','out')
 
-#set($expect.timeout = 15)
+#set($expect.timeout = 60)
 #set($expect.failOnTimeout = true)
 #set($expect.failOnEOF = true)
 
