@@ -73,7 +73,7 @@ chmod +x hook.sh dehydrated renew_certificates_for_alteon_using_ACME.sh check_th
     <img width="655" height="395" alt="Setting the password" src="https://github.com/user-attachments/assets/05bd498e-5475-43ef-b7c5-df6652a29cf7" />
 
 
-7.  Edit the config file and modify the required parameters from their defaults, if necessary (for example, the ACME CA URL, EAB_KID (not required for the Let’s Encrypt CA), EAB_HMAC_KEY (not required for the Let’s Encrypt CA), key size, and key algorithm and parameters (RSA/ECC)).
+7.  Edit the relevant config file, for example **config_letsencrypt** and modify the required parameters from their defaults, if necessary (for example, the ACME CA URL, EAB_KID (not required for the Let’s Encrypt CA), EAB_HMAC_KEY (not required for the Let’s Encrypt CA), key size, and key algorithm and parameters (RSA/ECC)).
 
 8. Edit the hook.sh file and modify the Cyber Controller vDirect parameters according to your setup. For example:
 
@@ -136,6 +136,12 @@ The virtual server should be accessible by letsencrypt with the virtual server D
       export sender_password_for_ACME='password'
       ```
       
+      In Addition, export the **ALTEON_DEVICES**
+      
+      ```
+      export ALTEON_DEVICES='10.0.0.1,10.0.0.2'
+      ```
+
     e.	Before running dehydrated for the first time against each CA, register with each config file:
   
       ```
