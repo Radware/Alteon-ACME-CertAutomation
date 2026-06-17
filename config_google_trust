@@ -1,0 +1,37 @@
+########################################################
+# Config file for Google Trust Services CA             #
+# EAB (External Account Binding) is REQUIRED           #
+########################################################
+
+# Resolve names to addresses of IP version only. (curl)
+IP_VERSION=4
+
+# Path to certificate authority
+# Staging (for testing):
+CA="https://dv.acme-v02.test-api.pki.goog/directory"
+# Production:
+#CA="https://dv.acme-v02.api.pki.goog/directory"
+
+# EAB credentials (required for Google Trust Services)
+# Obtain these from your Google Cloud console
+EAB_KID="Your EAB_KID"
+EAB_HMAC_KEY="Your EAB_HMAC_KEY"
+CONTACT_EMAIL="Your CONTACT_EMAIL"
+
+# Which challenge should be used? Currently http-01 and dns-01 are supported
+CHALLENGETYPE="http-01"
+
+# Output directory for challenge-tokens to be served by webserver or deployed in HOOK
+WELLKNOWN="/etc/Alteon-ACME-CertAutomation"
+
+# Program or function called in certain situations
+HOOK="${BASEDIR}/hook.sh"
+
+# Minimum days before expiration to automatically renew certificate (default: 30)
+RENEW_DAYS="90"
+
+# Which public key algorithm should be used? Supported: rsa, prime256v1 and secp384r1
+#KEY_ALGO=rsa
+
+# Default keysize for private keys (default: 4096)
+#KEYSIZE="4096"

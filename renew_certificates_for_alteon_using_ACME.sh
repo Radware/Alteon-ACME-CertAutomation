@@ -2,8 +2,8 @@
 
 # SMTP Configuration
 SMTP_SERVER="smtp.office365.com:587"
-SENDER_EMAIL="sender_email@company.com"
-RECIPIENT_EMAIL=("recipient@company.com")
+SENDER_EMAIL="sender_email@example.com"
+RECIPIENT_EMAIL=("recipient_email@example.com")
 # Example of multiple recipients:
 # RECIPIENT_EMAIL=("recipient1@company.com" "recipient2@company.com" "recipient3@company.com")
 SENDER_PASSWORD="${sender_password_for_ACME:-}"
@@ -156,11 +156,13 @@ alteon_devices_per_domains=$(jq -r 'keys[]' "$ALTEON_DEVICES_PER_DOMAINS_FILE")
 # Prepare certs_status.json
 prepare_certs_status_file
 
-# Run dehydrated for each domain txt with the relevant Alteon devices
+# Run dehydrated for each domain txt with the relevant config and Alteon devices
 for domains_file in $alteon_devices_per_domains; do
-    alteon_devices=$(jq -r --arg file "$domains_file" '.[$file]' "$ALTEON_DEVICES_PER_DOMAINS_FILE")
+    alteon_devices=$(jq -r --arg file "$domains_file" '.[$file].alteon_devices | join(",")' "$ALTEON_DEVICES_PER_DOMAINS_FILE")
+    config_file=$(jq -r --arg file "$domains_file" '.[$file].config' "$ALTEON_DEVICES_PER_DOMAINS_FILE")
     export ALTEON_DEVICES="$alteon_devices"
-    bash "$DEHYDRATED_FILE" -c -g --domains-txt "$domains_file"
+    echo "Processing $domains_file with config=$config_file and Alteon devices=$alteon_devices"
+    bash "$DEHYDRATED_FILE" -f "$CURRENT_DIR/$config_file" -c -g --domains-txt "$domains_file"
 done
 
 # Load certificate status
@@ -180,3 +182,4 @@ fi
 
 echo "Sending an email..."
 send_mail "$subject" "$html_table"
+

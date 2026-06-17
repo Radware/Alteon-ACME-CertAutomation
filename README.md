@@ -73,7 +73,7 @@ chmod +x hook.sh dehydrated renew_certificates_for_alteon_using_ACME.sh check_th
     <img width="655" height="395" alt="Setting the password" src="https://github.com/user-attachments/assets/05bd498e-5475-43ef-b7c5-df6652a29cf7" />
 
 
-7.  Edit the config file and modify the required parameters from their defaults, if necessary (for example, the ACME CA URL, EAB_KID (not required for the Let’s Encrypt CA), EAB_HMAC_KEY (not required for the Let’s Encrypt CA), key size, and key algorithm and parameters (RSA/ECC)).
+7.  Edit the relevant config file, for example **config_letsencrypt** and modify the required parameters from their defaults, if necessary (for example, the ACME CA URL, EAB_KID (not required for the Let’s Encrypt CA), EAB_HMAC_KEY (not required for the Let’s Encrypt CA), key size, and key algorithm and parameters (RSA/ECC)).
 
 8. Edit the hook.sh file and modify the Cyber Controller vDirect parameters according to your setup. For example:
 
@@ -107,13 +107,20 @@ The virtual server should be accessible by letsencrypt with the virtual server D
 
     a. Edit the **domains.txt** file and provide a test-domain
   
-    b. Edit the **config** file and make sure that the CA is the staging ACME CA - CA="https://acme-staging-v02.api.letsencrypt.org/directory".
+    b. Edit the config file you plan to use (e.g., **config_letsencrypt**) and make sure that the CA is the staging ACME CA - CA="https://acme-staging-v02.api.letsencrypt.org/directory".
   
-    c. Edit the **alteon_devices_per_domains.json** file and map the Alteon management IP addresses to the domains.txt file. For example:
-  
+    c. Edit the **alteon_devices_per_domains.json** file and map each domains TXT file to its **config file** and **Alteon devices**. For example:
+  	
+    ```  
       {
-        "domains.txt": "10.0.0.1,10.0.0.2"
+        "domains.txt": {
+          "config": "config_letsencrypt",
+          "alteon_devices": ["10.0.0.1", "10.0.0.2"]
+        }
       }
+    ```
+
+      This allows each domains file to use a different CA and different Alteon devices.
 
       To gather the Alteon IP addresses, you can log in to vDirect and navigate to Inventory > ADCs.
       For example:
@@ -134,17 +141,19 @@ The virtual server should be accessible by letsencrypt with the virtual server D
       ```
       export ALTEON_DEVICES='10.0.0.1,10.0.0.2'
       ```
-      
-    e.	Before running dehydrated for the first time against the CA, run the following command:
+
+    e.	Before running dehydrated for the first time against each CA, register with each config file:
   
       ```
-      bash /etc/Alteon-ACME-CertAutomation/dehydrated --register --accept-terms
+      bash /etc/Alteon-ACME-CertAutomation/dehydrated -f /etc/Alteon-ACME-CertAutomation/config_letsencrypt --register --accept-terms
       ```
+
+      Repeat for each config file you use (e.g., `config_google_trust`).
       
-    f.	Run dehydrated manually:
+    f.	Run dehydrated manually (using the relevant config file):
   
       ```
-      bash /etc/Alteon-ACME-CertAutomation/dehydrated -c -x -g
+      bash /etc/Alteon-ACME-CertAutomation/dehydrated -f /etc/Alteon-ACME-CertAutomation/config_letsencrypt -c -x -g
       ```
       
     g.	Run the bash script, now the email should be sent to the recipient:
@@ -153,29 +162,40 @@ The virtual server should be accessible by letsencrypt with the virtual server D
       bash renew_certificates_for_alteon_using_ACME.sh
       ```
       
-10.	Implementing the solution:
+11.	Implementing the solution:
     
-    a. Modify the **domains.txt** file with the list of domains for which you want to receive signed certificates from Let’s Encrypt.
+    a. Modify the **domains.txt** file (or create separate domain files per environment) with the list of domains for which you want to receive signed certificates.
   	
-    b. In case you have different domain lists that use different Alteon devices, create domains TXT file for each environment, and edit the alteon_devices_per_domains.json file to map the Alteon devices to the relevant domains TXT file. For example:
+    b. Edit the **alteon_devices_per_domains.json** file to map each domains file to its **config file** and **Alteon devices**. Each domains file can use a **different CA** and **different Alteon devices**. For example:
 
     ```
     {
-      "domains_env1.txt": "10.0.0.1,10.0.0.2",
-      "domains_env2.txt": "10.0.0.3,10.0.0.4"
+      "domains_env1.txt": {
+        "config": "config_letsencrypt",
+        "alteon_devices": ["10.0.0.1", "10.0.0.2"]
+      },
+      "domains_env2.txt": {
+        "config": "config_google_trust",
+        "alteon_devices": ["10.0.0.3", "10.0.0.4"]
+      }
     }
   	```
     
-    Note: Every line should begin with a domain that will be used as the CN (Common Name) for the certificate and with optional additional domains that will be used as SAN (Subject Alternative Names).
+    Note: Every line in a domains file should begin with a domain that will be used as the CN (Common Name) for the certificate and with optional additional domains that will be used as SAN (Subject Alternative Names).
+
+    Available example config files:
+    - **config_letsencrypt** - For Let’s Encrypt (no EAB required)
+    - **config_google_trust** - For Google Trust Services (EAB required)
     
-    c. Edit the **config** file and make sure that the CA is set to your desired production ACME CA:
+    You can create additional config files for other CAs by copying one of the examples and modifying the CA URL and EAB settings.
+    
+    c. Edit each config file and make sure the CA is set to your desired production ACME CA. For EAB-based CAs (like Google Trust Services), set the `EAB_KID` and `EAB_HMAC_KEY` values.
   	
-    CA="https://acme-v02.api.letsencrypt.org/directory"
-  	
-    d.	Again run the following command to register with the production CA:
+    d.	Register with each CA by running dehydrated with the relevant config file:
   	
     ```
-    bash /etc/Alteon-ACME-CertAutomation/dehydrated --register --accept-terms
+    bash /etc/Alteon-ACME-CertAutomation/dehydrated -f /etc/Alteon-ACME-CertAutomation/config_letsencrypt --register --accept-terms
+    bash /etc/Alteon-ACME-CertAutomation/dehydrated -f /etc/Alteon-ACME-CertAutomation/config_google_trust --register --accept-terms
     ```
     
     e. Run the bash script:
@@ -196,7 +216,7 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     0 0 * * * cd /etc/Alteon-ACME-CertAutomation; env https_proxy='<http://username:password@host:port>' primary_cc_password_for_ACME='<primary_cc_password_for_ACME>' secondary_cc_password_for_ACME='<secondary_cc_password_for_ACME>' sender_password_for_ACME='<sender_password_for_ACME>' /usr/bin/bash /etc/Alteon-ACME-CertAutomation/renew_certificates_for_alteon_using_ACME.sh > /var/log/Alteon-ACME-CertAutomation_last_run.log 2>&1
   	```
 
-11.	Send an alert when the primary Cyber Controller server that holds the ACME client is unable to renew the certificates:
+12.	Send an alert when the primary Cyber Controller server that holds the ACME client is unable to renew the certificates:
 
     a. Move / copy the **check_the_primary_cc_and_send_mail_if_needed.sh** file to the secondary Cyber Controller under the /etc/check_the_primary_cc directory.
    	
@@ -255,9 +275,10 @@ This solution should work with any Certificate Authority that supports the ACME 
 
 The solution has been tested with:
 * **Let's Encrypt** - No EAB required
-* **Google Trust Services** - Requires `EAB_KID` and `EAB_HMAC_KEY` to be configured in the **config** file
+* **Google Trust Services** - Requires `EAB_KID` and `EAB_HMAC_KEY` to be configured in the relevant **config** file
+* **Digicert** - Requires `EAB_KID` and `EAB_HMAC_KEY` to be configured in the relevant **config** file
 
-**Note:** Some CAs require External Account Binding (EAB). If your CA requires EAB, add the following to your **config** file:
+**Note:** Some CAs require External Account Binding (EAB). If your CA requires EAB, add the following to your relevant **config** file:
 
 ```
 EAB_KID="your_eab_key_id"
@@ -272,3 +293,4 @@ For any further inquiries or requests, please contact Radware.
 
 ## Disclaimer ##
 There is no warranty, expressed or implied, associated with this product.
+
