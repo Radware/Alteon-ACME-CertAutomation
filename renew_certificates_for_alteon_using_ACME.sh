@@ -2,8 +2,8 @@
 
 # SMTP Configuration
 SMTP_SERVER="smtp.office365.com:587"
-SENDER_EMAIL="sender@example.com"
-RECIPIENT_EMAIL=("recipient@example.com")
+SENDER_EMAIL="sender_email@example.com"
+RECIPIENT_EMAIL=("recipient_email@example.com")
 # Example of multiple recipients:
 # RECIPIENT_EMAIL=("recipient1@company.com" "recipient2@company.com" "recipient3@company.com")
 SENDER_PASSWORD="${sender_password_for_ACME:-}"
