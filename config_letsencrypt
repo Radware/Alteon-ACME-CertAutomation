@@ -22,7 +22,7 @@ WELLKNOWN="/etc/Alteon-ACME-CertAutomation"
 HOOK="${BASEDIR}/hook.sh"
 
 # Minimum days before expiration to automatically renew certificate (default: 30)
-RENEW_DAYS="90"
+RENEW_DAYS="30"
 
 # Which public key algorithm should be used? Supported: rsa, prime256v1 and secp384r1
 #KEY_ALGO=rsa
