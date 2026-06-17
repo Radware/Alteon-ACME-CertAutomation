@@ -110,13 +110,15 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     b. Edit the config file you plan to use (e.g., **config_letsencrypt**) and make sure that the CA is the staging ACME CA - CA="https://acme-staging-v02.api.letsencrypt.org/directory".
   
     c. Edit the **alteon_devices_per_domains.json** file and map each domains TXT file to its **config file** and **Alteon devices**. For example:
-  
+  	
+    ```  
       {
         "domains.txt": {
           "config": "config_letsencrypt",
           "alteon_devices": ["10.0.0.1", "10.0.0.2"]
         }
       }
+    ```
 
       This allows each domains file to use a different CA and different Alteon devices.
 
@@ -154,7 +156,7 @@ The virtual server should be accessible by letsencrypt with the virtual server D
       bash renew_certificates_for_alteon_using_ACME.sh
       ```
       
-10.	Implementing the solution:
+11.	Implementing the solution:
     
     a. Modify the **domains.txt** file (or create separate domain files per environment) with the list of domains for which you want to receive signed certificates.
   	
@@ -208,7 +210,7 @@ The virtual server should be accessible by letsencrypt with the virtual server D
     0 0 * * * cd /etc/Alteon-ACME-CertAutomation; env https_proxy='<http://username:password@host:port>' primary_cc_password_for_ACME='<primary_cc_password_for_ACME>' secondary_cc_password_for_ACME='<secondary_cc_password_for_ACME>' sender_password_for_ACME='<sender_password_for_ACME>' /usr/bin/bash /etc/Alteon-ACME-CertAutomation/renew_certificates_for_alteon_using_ACME.sh > /var/log/Alteon-ACME-CertAutomation_last_run.log 2>&1
   	```
 
-11.	Send an alert when the primary Cyber Controller server that holds the ACME client is unable to renew the certificates:
+12.	Send an alert when the primary Cyber Controller server that holds the ACME client is unable to renew the certificates:
 
     a. Move / copy the **check_the_primary_cc_and_send_mail_if_needed.sh** file to the secondary Cyber Controller under the /etc/check_the_primary_cc directory.
    	
