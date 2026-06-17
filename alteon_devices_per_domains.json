@@ -1,3 +1,10 @@
 {
-    "domains.txt": "10.0.0.1,10.0.0.2"
+    "domains_env1.txt": {
+        "config": "config_letsencrypt",
+        "alteon_devices": ["10.0.0.1", "10.0.0.2"]
+    },
+    "domains_env2.txt": {
+        "config": "config_google_trust",
+        "alteon_devices": ["10.0.0.3", "10.0.0.4"]
+    }
 }
